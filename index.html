@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Everhart Family Status</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&amp;display=swap');
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-dark: #0a0a0f;
+      --bg-card: #12121a;
+      --accent: #e63946;
+      --accent-dim: #9b2226;
+      --text-primary: #f1f1f3;
+      --text-secondary: #8b8b9a;
+      --border: #1e1e2a;
+      --glow: rgba(230, 57, 70, 0.35);
+    }
+
+    body {
+      font-family: 'Vazirmatn', system-ui, sans-serif;
+      background: var(--bg-dark);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+
+    #loader {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(ellipse at center, #12121a 0%, #0a0a0f 70%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+    }
+
+    #loader.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+
+    .loader-top {
+      position: absolute;
+      top: 48px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 0.85rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--text-secondary);
+      font-weight: 400;
+      opacity: 0.7;
+    }
+
+    .loader-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 32px;
+    }
+
+
+    .progress-ring {
+      position: relative;
+      width: 120px;
+      height: 120px;
+    }
+
+    .progress-ring svg {
+      transform: rotate(-90deg);
+      width: 120px;
+      height: 120px;
+    }
+
+    .progress-ring circle {
+      fill: none;
+      stroke-width: 3;
+    }
+
+    .progress-ring .bg {
+      stroke: var(--border);
+    }
+
+    .progress-ring .fg {
+      stroke: var(--accent);
+      stroke-linecap: round;
+      stroke-dasharray: 339.3;
+      stroke-dashoffset: 339.3;
+      animation: progress 6s linear forwards;
+      filter: drop-shadow(0 0 8px var(--glow));
+    }
+
+    @keyframes progress {
+      to { stroke-dashoffset: 0; }
+    }
+
+    .progress-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .progress-center svg {
+      width: 36px;
+      height: 36px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 1.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      animation: pulse 1.6s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.08); }
+    }
+
+    .loader-text {
+      font-size: 1.15rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      letter-spacing: -0.01em;
+      text-align: center;
+      max-width: 320px;
+      line-height: 1.6;
+    }
+
+    .loader-sub {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 6px;
+      letter-spacing: 0.04em;
+    }
+
+
+    .dots::after {
+      content: '';
+      animation: dots 1.4s steps(4, end) infinite;
+    }
+
+    @keyframes dots {
+      0% { content: ''; }
+      25% { content: '.'; }
+      50% { content: '..'; }
+      75% { content: '...'; }
+      100% { content: ''; }
+    }
+
+
+    #main {
+      width: 100%;
+      max-width: 480px;
+      padding: 24px;
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.9s ease 0.2s, transform 0.9s ease 0.2s;
+    }
+
+    #main.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px 32px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.45);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    }
+
+    .status-header {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 28px;
+    }
+
+    .icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: rgba(230, 57, 70, 0.12);
+      border: 1px solid rgba(230, 57, 70, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .icon-box svg {
+      width: 24px;
+      height: 24px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .status-label {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .status-title {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 0 0 28px;
+    }
+
+    .status-body {
+      text-align: center;
+      padding: 12px 0 8px;
+    }
+
+    .status-main {
+      font-size: 1.45rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      line-height: 1.5;
+      margin-bottom: 10px;
+    }
+
+    .status-value {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(230, 57, 70, 0.1);
+      border: 1px solid rgba(230, 57, 70, 0.3);
+      color: var(--accent);
+      font-size: 1.1rem;
+      font-weight: 600;
+      padding: 10px 22px;
+      border-radius: 999px;
+      margin-top: 8px;
+    }
+
+    .status-value svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .footer-note {
+      margin-top: 32px;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-secondary);
+      opacity: 0.7;
+      letter-spacing: 0.03em;
+    }
+
+
+    .glow {
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, var(--glow) 0%, transparent 70%);
+      top: -80px;
+      right: -60px;
+      pointer-events: none;
+      opacity: 0.4;
+    }
+
+    @media (max-width: 480px) {
+      .card {
+        padding: 32px 24px;
+      }
+      .status-main {
+        font-size: 1.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+
+  <div id="loader">
+    <div class="loader-top">Connecting To Everhart Family....</div>
+
+    <div class="loader-content">
+      <div class="progress-ring">
+        <svg viewBox="0 0 120 120">
+          <circle class="bg" cx="60" cy="60" r="54"></circle>
+          <circle class="fg" cx="60" cy="60" r="54"></circle>
+        </svg>
+        <div class="progress-center">
+
+          <svg viewBox="0 0 24 24">
+            <path d="M5 12.55a11 11 0 0 1 14.08 0"/>
+            <path d="M1.42 9a16 16 0 0 1 21.16 0"/>
+            <path d="M8.53 16.11a6 6 0 0 1 6.95 0"/>
+            <circle cx="12" cy="20" r="1"/>
+          </svg>
+        </div>
+      </div>
+
+      <div>
+        <div class="loader-text">
+          در حال گرفتن وضعیت فمیلی اورهارت<span class="dots"></span>
+        </div>
+        <div class="loader-sub">لطفاً صبر کنید</div>
+      </div>
+    </div>
+  </div>
+
+
+  <div id="main">
+    <div class="card">
+      <div class="glow"></div>
+
+      <div class="status-header">
+        <div class="icon-box">
+
+          <svg viewBox="0 0 24 24">
+            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/>
+            <line x1="12" y1="9" x2="12" y2="13"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
+          </svg>
+        </div>
+        <div>
+          <div class="status-label">Everhart Family</div>
+          <div class="status-title">گزارش وضعیت</div>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="status-body">
+        <div class="status-main">وضعیت اورهارت</div>
+        <div class="status-value">
+
+          <svg viewBox="0 0 24 24">
+            <polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/>
+            <polyline points="17 18 23 18 23 12"/>
+          </svg>
+    داش خیلی کیریه دنبال چی تو؟
+        </div>
+      </div>
+
+      <div class="footer-note">با تشکر // فمیلی اورهارت</div>
+    </div>
+  </div>
+
+  <script>
+    const loader = document.getElementById('loader');
+    const main = document.getElementById('main');
+
+    setTimeout(() => {
+      loader.classList.add('hidden');
+      main.classList.add('visible');
+    }, 6000);
+  </script>
+</body>
+</html>
